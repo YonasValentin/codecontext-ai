@@ -94,11 +94,11 @@ analysis = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/YonasValentin/magicdocs-cli"
-Documentation = "https://github.com/YonasValentin/magicdocs-cli/blob/main/codecontext-ai/README.md"
-Repository = "https://github.com/YonasValentin/magicdocs-cli"
-"Bug Tracker" = "https://github.com/YonasValentin/magicdocs-cli/issues"
-Changelog = "https://github.com/YonasValentin/magicdocs-cli/blob/main/codecontext-ai/CHANGELOG.md"
+Homepage = "https://github.com/YonasValentin/codecontext-ai"
+Documentation = "https://github.com/YonasValentin/codecontext-ai/blob/main/README.md"
+Repository = "https://github.com/YonasValentin/codecontext-ai"
+"Bug Tracker" = "https://github.com/YonasValentin/codecontext-ai/issues"
+Changelog = "https://github.com/YonasValentin/codecontext-ai/blob/main/CHANGELOG.md"
 
 [project.scripts]
 codecontext-ai = "codecontext_ai.cli:main"

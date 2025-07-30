@@ -10,10 +10,10 @@ We're not just building another AI tool - we're creating a movement that proves 
 
 ## 🚀 **Quick Start for Privacy Warriors**
 
-1. **Fork the revolution**: Fork [YonasValentin/magicdocs-cli](https://github.com/YonasValentin/magicdocs-cli)
+1. **Fork the revolution**: Fork [YonasValentin/codecontext-ai](https://github.com/YonasValentin/codecontext-ai)
 2. **Set up your privacy-first development environment**:
    ```bash
-   git clone https://github.com/your-username/magicdocs-cli.git
+   git clone https://github.com/your-username/codecontext-ai.git
    cd codecontext-ai
    make install-dev
    ```
@@ -132,8 +132,8 @@ make test
 - Maintain professional communication
 
 ### Communication Channels
-- **Issues**: [Report bugs & feature requests](https://github.com/YonasValentin/magicdocs-cli/issues)
-- **Discussions**: [General questions and ideas](https://github.com/YonasValentin/magicdocs-cli/discussions)
+- **Issues**: [Report bugs & feature requests](https://github.com/YonasValentin/codecontext-ai/issues)
+- **Discussions**: [General questions and ideas](https://github.com/YonasValentin/codecontext-ai/discussions)
 - **GitHub**: [@YonasValentin](https://github.com/YonasValentin)
 - **Direct Contact**: Privacy-focused development discussion
 

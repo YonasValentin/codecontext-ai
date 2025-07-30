@@ -102,7 +102,7 @@ make benchmark --visualize
 
 ### 🚀 **INSTANT DEVELOPMENT SETUP**
 ```bash
-git clone https://github.com/YonasValentin/magicdocs-cli.git
+git clone https://github.com/YonasValentin/codecontext-ai.git
 cd codecontext-ai
 make setup-dev
 ```
@@ -187,9 +187,9 @@ readme = ai.generate_readme(codebase_path="./src", context="Python web framework
 ## 💬 **COMMUNITY & SUPPORT**
 
 ### 🔗 **CONNECT WITH US**
-- 🐙 **GitHub**: [YonasValentin/magicdocs-cli](https://github.com/YonasValentin/magicdocs-cli)
-- 🐛 **Issues**: [Report bugs & request features](https://github.com/YonasValentin/magicdocs-cli/issues)
-- 💬 **Discussions**: [Community chat & questions](https://github.com/YonasValentin/magicdocs-cli/discussions)
+- 🐙 **GitHub**: [YonasValentin/codecontext-ai](https://github.com/YonasValentin/codecontext-ai)
+- 🐛 **Issues**: [Report bugs & request features](https://github.com/YonasValentin/codecontext-ai/issues)
+- 💬 **Discussions**: [Community chat & questions](https://github.com/YonasValentin/codecontext-ai/discussions)
 - 📧 **Contact**: [@YonasValentin](https://github.com/YonasValentin)
 
 ### 🏆 **BUILT BY**
@@ -201,7 +201,7 @@ readme = ai.generate_readme(codebase_path="./src", context="Python web framework
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YonasValentin/magicdocs-cli.git
+git clone https://github.com/YonasValentin/codecontext-ai.git
 cd codecontext-ai
 
 # 2. Set up development environment
