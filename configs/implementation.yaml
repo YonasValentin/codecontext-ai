@@ -1,0 +1,72 @@
+# Implementation Guide Model Training Configuration
+model:
+  base_model: "codellama/CodeLlama-7b-hf"
+  model_name: "codecontext-implementation-7b"
+  output_dir: "./models/codecontext-implementation-7b"
+
+# Training parameters optimized for implementation guides
+training:
+  num_epochs: 3
+  learning_rate: 2e-4
+  batch_size: 4
+  gradient_accumulation_steps: 4
+  warmup_steps: 100
+  max_steps: 1200
+  save_steps: 300
+  eval_steps: 100
+  logging_steps: 10
+
+# LoRA configuration for efficient fine-tuning
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.1
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+  bias: "none"
+  task_type: "CAUSAL_LM"
+
+# Dataset configuration for implementation training
+data:
+  train_file: "datasets/implementation_train.jsonl"
+  validation_file: "datasets/implementation_val.jsonl"
+  max_length: 4096
+  test_size: 0.1
+  preprocessing_num_workers: 4
+
+# Specialized prompt configuration for implementation guides
+prompt:
+  instruction_key: "implementation"
+  system_prompt: "You are a senior technical lead creating step-by-step implementation guides with code examples and best practices."
+  max_input_length: 2048
+  max_output_length: 2048
+
+# Training optimization
+optimization:
+  optim: "adamw_torch"
+  weight_decay: 0.01
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1e-8
+  max_grad_norm: 1.0
+
+# Hardware configuration
+hardware:
+  fp16: true
+  dataloader_pin_memory: true
+  dataloader_num_workers: 4
+  remove_unused_columns: false
+  ddp_find_unused_parameters: false
+
+# Evaluation metrics
+evaluation:
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+  evaluation_strategy: "steps"
+  save_strategy: "steps"
+  load_best_model_at_end: true
+
+# Weights & Biases integration
+wandb:
+  project: "codecontext-implementation"
+  name: "implementation-guide-v1"
+  tags: ["implementation", "codellama", "lora"]
