@@ -1,0 +1,29 @@
+model:
+  base_model: "codellama/CodeLlama-7b-hf"
+  
+training:
+  output_dir: "./models/codecontext-readme-7b"
+  epochs: 3
+  batch_size: 4
+  gradient_accumulation: 4
+  learning_rate: 2e-4
+  warmup_steps: 100
+  logging_steps: 10
+  save_steps: 500
+  save_total_limit: 2
+
+lora:
+  rank: 64
+  alpha: 16
+  target_modules: ["q_proj", "v_proj", "k_proj", "o_proj"]
+  dropout: 0.1
+
+data:
+  dataset_path: "./data/readme_dataset"
+  split: "train"
+  max_length: 2048
+
+wandb:
+  enabled: true
+  project: "codecontext-ai"
+  run_name: "readme-model-v1"
