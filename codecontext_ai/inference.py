@@ -68,8 +68,8 @@ class InferenceEngine:
         generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         return generated_text[len(prompt):].strip()
 
-class DocumentationAI:
-    """High-level interface for documentation generation"""
+class ArchitecturalGuideAI:
+    """Production-ready architectural guide and documentation generation"""
     
     def __init__(self, model_path: str, model_type: str = "readme"):
         self.model_type = model_type
@@ -84,11 +84,14 @@ class DocumentationAI:
             with open(prompts_file) as f:
                 return json.load(f)
         
-        # Default prompts
         return {
             "readme": "Generate a comprehensive README.md for the following codebase:\n\n{context}\n\nREADME.md:\n",
             "api": "Generate API documentation for:\n\n{context}\n\nAPI Documentation:\n",
-            "changelog": "Generate a changelog based on the following commits:\n\n{context}\n\nCHANGELOG.md:\n"
+            "changelog": "Generate a changelog based on the following commits:\n\n{context}\n\nCHANGELOG.md:\n",
+            "architecture": "Generate professional architecture guide:\n\n{context}\n\nArchitecture Guide:\n",
+            "implementation": "Generate step-by-step implementation guide:\n\n{context}\n\nImplementation Guide:\n",
+            "component": "Generate component architecture guide:\n\n{context}\n\nComponent Guide:\n",
+            "best_practices": "Generate best practices guide:\n\n{context}\n\nBest Practices:\n"
         }
     
     def generate_readme(self, codebase_path: str, additional_context: str = "") -> str:
@@ -111,6 +114,26 @@ class DocumentationAI:
         context = self._format_commit_context(commits)
         prompt = self.prompts["changelog"].format(context=context)
         return self.engine.generate(prompt)
+    
+    def generate_architecture_guide(self, codebase_path: str, guide_type: str = "full") -> str:
+        """Generate architecture guide with project analysis"""
+        context = self._analyze_architecture(codebase_path, guide_type)
+        return self.engine.generate(self.prompts["architecture"].format(context=context))
+    
+    def generate_implementation_guide(self, requirements: Dict, difficulty: str = "medium") -> str:
+        """Generate implementation guide from requirements"""
+        context = self._format_requirements(requirements, difficulty)
+        return self.engine.generate(self.prompts["implementation"].format(context=context))
+    
+    def generate_component_guide(self, component_info: Dict, framework: str = "react") -> str:
+        """Generate component guide for framework"""
+        context = self._format_component_info(component_info, framework)
+        return self.engine.generate(self.prompts["component"].format(context=context))
+    
+    def generate_best_practices_guide(self, tech_stack: List[str], project_type: str = "web") -> str:
+        """Generate best practices for tech stack"""
+        context = self._format_tech_stack(tech_stack, project_type)
+        return self.engine.generate(self.prompts["best_practices"].format(context=context))
     
     def _analyze_codebase(self, codebase_path: str) -> str:
         """Extract relevant codebase information"""
@@ -169,3 +192,123 @@ class DocumentationAI:
             context.append(f"- {hash_short} {message}")
         
         return "\n".join(context)
+    
+    def _analyze_architecture(self, codebase_path: str, guide_type: str) -> str:
+        """Analyze project architecture with priority assessment"""
+        components = [
+            self._get_project_structure(codebase_path),
+            self._detect_tech_stack(codebase_path),
+            self._analyze_dependencies(codebase_path)
+        ]
+        return "\n\n".join(filter(None, components))
+    
+    def _format_requirements(self, requirements: Dict, difficulty: str) -> str:
+        """Format requirements with priority indicators"""
+        lines = [f"Difficulty: {difficulty.upper()}"]
+        
+        if features := requirements.get("features"):
+            lines.append("Features:")
+            lines.extend(f"- [{f.get('priority', 'MEDIUM')}] {f.get('name')}: {f.get('description')}" 
+                        for f in features)
+        
+        if stack := requirements.get("tech_stack"):
+            lines.append(f"Stack: {', '.join(stack)}")
+            
+        return "\n".join(lines)
+    
+    def _format_component_info(self, component_info: Dict, framework: str) -> str:
+        """Format component information for guide generation"""
+        lines = [f"Framework: {framework}", f"Type: {component_info.get('type', 'functional')}"]
+        
+        if props := component_info.get("props"):
+            lines.append("Props:")
+            lines.extend(f"- {p.get('name')}: {p.get('type', 'string')} {'(required)' if p.get('required') else '(optional)'}"
+                        for p in props)
+                        
+        return "\n".join(lines)
+    
+    def _format_tech_stack(self, tech_stack: List[str], project_type: str) -> str:
+        """Categorize and format technology stack"""
+        categories = {
+            'frontend': ['react', 'vue', 'angular', 'svelte', 'nextjs'],
+            'backend': ['nodejs', 'python', 'nestjs', 'fastapi', 'django'],
+            'database': ['postgresql', 'mongodb', 'redis', 'supabase']
+        }
+        
+        lines = [f"Project: {project_type}", f"Stack: {', '.join(tech_stack)}"]
+        
+        for category, techs in categories.items():
+            if matches := [t for t in tech_stack if t.lower() in techs]:
+                lines.append(f"{category.title()}: {', '.join(matches)}")
+                
+        return "\n".join(lines)
+    
+    def _get_project_structure(self, codebase_path: str) -> str:
+        """Analyze project structure with priority indicators"""
+        structure = []
+        priority_folders = {'src', 'app', 'components', 'pages', 'api', 'lib', 'utils'}
+        
+        try:
+            for root, dirs, files in os.walk(codebase_path):
+                level = root.replace(codebase_path, '').count(os.sep)
+                if level >= 3: continue
+                
+                folder = os.path.basename(root)
+                priority = "HIGH" if folder.lower() in priority_folders else "MEDIUM" if any(f.endswith(('.ts', '.tsx', '.js', '.jsx', '.py')) for f in files) else "LOW"
+                
+                indent = '  ' * level
+                structure.append(f"{indent}{folder}/ ({priority})")
+                
+                for file in files[:8]:
+                    file_priority = "HIGH" if file in {'package.json', 'tsconfig.json', 'index.tsx'} else "MEDIUM" if file.endswith(('.ts', '.tsx', '.js', '.jsx', '.py')) else "LOW"
+                    structure.append(f"{indent}  {file} ({file_priority})")
+                    
+        except Exception:
+            return "Structure analysis failed"
+            
+        return "\n".join(structure[:80])
+    
+    def _detect_tech_stack(self, codebase_path: str) -> str:
+        """Detect frameworks and generate dependency insights"""
+        detected = set()
+        
+        package_json = Path(codebase_path) / "package.json"
+        if package_json.exists():
+            try:
+                with open(package_json) as f:
+                    data = json.load(f)
+                    deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
+                    
+                tech_map = {
+                    'react': ['react', '@types/react'], 'nextjs': ['next'], 'typescript': ['typescript'],
+                    'tailwind': ['tailwindcss'], 'prisma': ['prisma'], 'supabase': ['@supabase/supabase-js']
+                }
+                
+                for tech, indicators in tech_map.items():
+                    if any(ind in deps for ind in indicators):
+                        detected.add(tech)
+            except: pass
+                        
+        return f"Detected: {', '.join(detected)}" if detected else ""
+    
+    def _analyze_dependencies(self, codebase_path: str) -> str:
+        """Analyze key dependencies with purposes"""
+        package_json = Path(codebase_path) / "package.json"
+        if not package_json.exists():
+            return ""
+            
+        try:
+            with open(package_json) as f:
+                deps = json.load(f).get("dependencies", {})
+                
+            key_deps = {
+                'react': 'UI Framework', 'next': 'Full-stack Framework', 'typescript': 'Type Safety',
+                'tailwindcss': 'CSS Framework', '@supabase/supabase-js': 'Backend Service',
+                'prisma': 'Database ORM', 'zustand': 'State Management'
+            }
+            
+            found = [f"- {dep}: {purpose}" for dep, purpose in key_deps.items() if dep in deps]
+            return "Dependencies:\n" + "\n".join(found) if found else ""
+            
+        except:
+            return ""

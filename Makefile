@@ -60,12 +60,16 @@ prepare-data:
 		--output ./data \
 		--readme-samples 10000 \
 		--api-samples 5000 \
-		--changelog-samples 3000
+		--changelog-samples 3000 \
+		--architecture-samples 8000 \
+		--implementation-samples 6000 \
+		--component-samples 4000 \
+		--best-practices-samples 5000
 
 # Training
 train:
 	@if [ -z "$(MODEL)" ]; then \
-		echo "Please specify MODEL (readme/api/changelog/all)"; \
+		echo "Please specify MODEL (readme/api/changelog/architecture/implementation/component/best_practices/all)"; \
 		echo "Example: make train MODEL=readme"; \
 		exit 1; \
 	fi
@@ -75,6 +79,10 @@ train-all:
 	python train.py --config configs/readme.yaml
 	python train.py --config configs/api.yaml  
 	python train.py --config configs/changelog.yaml
+	python train.py --config configs/architecture.yaml
+	python train.py --config configs/implementation.yaml
+	python train.py --config configs/component.yaml
+	python train.py --config configs/best_practices.yaml
 
 # Evaluation
 evaluate:

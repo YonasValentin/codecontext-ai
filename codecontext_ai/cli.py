@@ -9,7 +9,7 @@ import asyncio
 from pathlib import Path
 from typing import Optional
 
-from .inference import DocumentationAI
+from .inference import ArchitecturalGuideAI
 from .evaluation import ModelEvaluator, Benchmarks
 
 
@@ -29,13 +29,16 @@ Examples:
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
     
     # Generate command
-    generate_parser = subparsers.add_parser('generate', help='Generate documentation')
-    generate_parser.add_argument('type', choices=['readme', 'api', 'changelog'],
-                                help='Type of documentation to generate')
+    generate_parser = subparsers.add_parser('generate', help='Generate guides and documentation')
+    generate_parser.add_argument('type', choices=['readme', 'api', 'changelog', 'architecture', 'implementation', 'component', 'best-practices'],
+                                help='Type of guide to generate')
     generate_parser.add_argument('path', help='Path to codebase or input file')
     generate_parser.add_argument('--model', help='Path to GGUF model file')
     generate_parser.add_argument('--output', help='Output file path')
-    generate_parser.add_argument('--context', help='Additional context for generation')
+    generate_parser.add_argument('--difficulty', choices=['easy', 'medium', 'hard'], default='medium',
+                                help='Implementation difficulty level')
+    generate_parser.add_argument('--framework', default='react', help='Target framework for component guides')
+    generate_parser.add_argument('--project-type', default='web', help='Project type for best practices')
     
     # Evaluate command
     eval_parser = subparsers.add_parser('evaluate', help='Evaluate model performance')
@@ -96,23 +99,32 @@ def handle_generate(args) -> int:
         return 1
     
     print(f"Loading model: {args.model}")
-    ai = DocumentationAI(str(model_path))
+    ai = ArchitecturalGuideAI(str(model_path))
     
-    print(f"Generating {args.type} documentation for: {args.path}")
+    print(f"Generating {args.type} guide for: {args.path}")
     
     try:
         if args.type == 'readme':
-            result = ai.generate_readme(args.path, args.context or "")
+            result = ai.generate_readme(args.path)
         elif args.type == 'api':
-            # For API docs, we'd need to parse the path for API info
-            api_info = {"endpoints": [], "models": []}  # Simplified
+            api_info = {"endpoints": [], "models": []}
             result = ai.generate_api_docs(api_info)
         elif args.type == 'changelog':
-            # For changelog, we'd need to parse git history
-            changes = []  # Simplified
+            changes = []
             result = ai.generate_changelog(changes)
+        elif args.type == 'architecture':
+            result = ai.generate_architecture_guide(args.path)
+        elif args.type == 'implementation':
+            requirements = {"features": [], "tech_stack": []}
+            result = ai.generate_implementation_guide(requirements, args.difficulty)
+        elif args.type == 'component':
+            component_info = {"type": "functional", "props": []}
+            result = ai.generate_component_guide(component_info, args.framework)
+        elif args.type == 'best-practices':
+            tech_stack = []
+            result = ai.generate_best_practices_guide(tech_stack, args.project_type)
         else:
-            print(f"Unsupported documentation type: {args.type}")
+            print(f"Unsupported guide type: {args.type}")
             return 1
         
         if args.output:
