@@ -1,0 +1,42 @@
+# Development dependencies for CodeContext AI
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.10.0
+
+# Code Quality
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.0.0
+pre-commit>=3.0.0
+
+# Profiling & Debugging
+memory-profiler>=0.60.0
+line-profiler>=4.0.0
+py-spy>=0.3.14
+
+# Documentation
+mkdocs>=1.4.0
+mkdocs-material>=9.0.0
+mkdocs-mermaid2-plugin>=0.6.0
+
+# Jupyter for experimentation
+jupyter>=1.0.0
+jupyterlab>=3.6.0
+ipywidgets>=8.0.0
+
+# Advanced ML tools
+tensorboard>=2.12.0
+wandb>=0.15.0
+optuna>=3.1.0
+
+# Model analysis
+torchviz>=0.0.2
+transformers-interpret>=0.10.0
+
+# Security scanning
+bandit>=1.7.5
+safety>=2.3.0
