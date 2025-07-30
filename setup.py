@@ -13,7 +13,7 @@ setup(
     description="Privacy-first AI models for local code documentation generation",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/YonasValentin/magicdocs-cli",
+    url="https://github.com/YonasValentin/codecontext-ai",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",
