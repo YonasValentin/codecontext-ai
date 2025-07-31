@@ -1,8 +1,8 @@
 # Component Guide Model Training Configuration
 model:
-  base_model: "codellama/CodeLlama-7b-hf"
-  model_name: "codecontext-component-7b"
-  output_dir: "./models/codecontext-component-7b"
+  base_model: "Qwen/Qwen3-8B"
+  model_name: "codecontext-component-qwen3-8b"
+  output_dir: "./models/codecontext-component-qwen3-8b"
 
 # Training parameters optimized for component guides
 training:

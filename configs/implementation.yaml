@@ -1,8 +1,8 @@
 # Implementation Guide Model Training Configuration
 model:
-  base_model: "codellama/CodeLlama-7b-hf"
-  model_name: "codecontext-implementation-7b"
-  output_dir: "./models/codecontext-implementation-7b"
+  base_model: "Qwen/Qwen3-8B"
+  model_name: "codecontext-implementation-qwen3-8b"
+  output_dir: "./models/codecontext-implementation-qwen3-8b"
 
 # Training parameters optimized for implementation guides
 training:

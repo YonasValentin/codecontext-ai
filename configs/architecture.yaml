@@ -1,8 +1,8 @@
 # Architecture Guide Model Training Configuration
 model:
-  base_model: "codellama/CodeLlama-7b-hf"
-  model_name: "codecontext-architecture-7b"
-  output_dir: "./models/codecontext-architecture-7b"
+  base_model: "Qwen/Qwen3-8B"
+  model_name: "codecontext-architecture-qwen3-8b"
+  output_dir: "./models/codecontext-architecture-qwen3-8b"
 
 # Training parameters optimized for architectural guidance
 training:
@@ -68,5 +68,5 @@ evaluation:
 # Weights & Biases integration
 wandb:
   project: "codecontext-architecture"
-  name: "architecture-guide-v1"
-  tags: ["architecture", "codellama", "lora"]
+  name: "architecture-guide-qwen3-v2"
+  tags: ["architecture", "qwen3", "lora"]

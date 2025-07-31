@@ -1,8 +1,8 @@
 model:
-  base_model: "codellama/CodeLlama-7b-hf"
+  base_model: "Qwen/Qwen3-8B"
   
 training:
-  output_dir: "./models/codecontext-readme-7b"
+  output_dir: "./models/codecontext-readme-qwen3-8b"
   epochs: 3
   batch_size: 4
   gradient_accumulation: 4
@@ -26,4 +26,4 @@ data:
 wandb:
   enabled: true
   project: "codecontext-ai"
-  run_name: "readme-model-v1"
+  run_name: "readme-qwen3-model-v2"

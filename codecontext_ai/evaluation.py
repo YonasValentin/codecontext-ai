@@ -222,20 +222,31 @@ class TextQualityAnalyzer:
         return min(1.0, score / len(code_blocks))
 
 class ModelEvaluator:
-    """Comprehensive model evaluation framework"""
+    """Enhanced evaluation framework for CodeContext AI models with Qwen3 and Ollama support"""
     
-    def __init__(self, model_path: str):
+    def __init__(self, model_path: str, model_type: str = "huggingface"):
         self.model_path = model_path
+        self.model_type = model_type  # "huggingface", "ollama", or "gguf"
         self.quality_analyzer = TextQualityAnalyzer()
         self.results = []
+        self.inference_engine = None
         
     async def evaluate_model(self, test_dataset: List[Dict], 
                            batch_size: int = 1) -> BenchmarkResult:
-        """Evaluate model on test dataset"""
-        from .inference import DocumentationAI
+        """Evaluate model on test dataset with multi-backend support"""
         
-        # Load model
-        model = DocumentationAI(self.model_path)
+        # Load appropriate model based on type
+        if self.model_type == "ollama":
+            from .ollama_integration import OllamaDocumentationAI, OllamaConfig
+            config = OllamaConfig(model_name=self.model_path)
+            model = OllamaDocumentationAI(config)
+        elif self.model_type == "rag":
+            from .rag import RAGEnhancedDocumentationAI, RAGConfig
+            rag_config = RAGConfig()
+            model = RAGEnhancedDocumentationAI(self.model_path, rag_config)
+        else:
+            from .inference import ArchitecturalGuideAI
+            model = ArchitecturalGuideAI(self.model_path)
         
         # Evaluation metrics
         all_metrics = []
@@ -248,19 +259,40 @@ class ModelEvaluator:
             for sample in batch:
                 start_time = time.time()
                 
-                # Generate prediction
+                # Generate prediction based on model type
                 try:
-                    if sample['doc_type'] == 'readme':
-                        prediction = model.generate_readme(
-                            sample.get('codebase_path', ''),
-                            sample.get('context', '')
+                    if self.model_type == "ollama":
+                        prediction = model.generate_documentation(
+                            doc_type=sample['doc_type'],
+                            context=sample.get('context', ''),
+                            requirements=sample.get('requirements', ''),
+                            thinking_mode=True
                         )
-                    elif sample['doc_type'] == 'api':
-                        prediction = model.generate_api_docs(
-                            sample.get('api_info', {})
+                    elif self.model_type == "rag":
+                        prediction = model.generate_context_aware_documentation(
+                            codebase_path=sample.get('codebase_path', './'),
+                            doc_type=sample['doc_type'],
+                            additional_context=sample.get('context', ''),
+                            use_rag=True
                         )
                     else:
-                        prediction = model.engine.generate(sample.get('context', ''))
+                        # Traditional evaluation
+                        if sample['doc_type'] == 'readme':
+                            prediction = model.generate_readme(
+                                sample.get('codebase_path', ''),
+                                sample.get('context', '')
+                            )
+                        elif sample['doc_type'] == 'api':
+                            prediction = model.generate_api_docs(
+                                sample.get('api_info', {})
+                            )
+                        elif sample['doc_type'] == 'architecture':
+                            prediction = model.generate_architecture_guide(
+                                sample.get('codebase_path', ''),
+                                sample.get('guide_type', 'full')
+                            )
+                        else:
+                            prediction = model.engine.generate(sample.get('context', ''))
                         
                 except Exception as e:
                     logger.error(f"Generation failed: {e}")
@@ -347,9 +379,19 @@ class ModelEvaluator:
     
     def _estimate_tokens_per_second(self, dataset: List[Dict], 
                                   times: List[float]) -> float:
-        """Estimate tokens per second"""
+        """Estimate tokens per second with proper tokenizer selection"""
         try:
-            tokenizer = AutoTokenizer.from_pretrained("codellama/CodeLlama-7b-hf")
+            # Use appropriate tokenizer based on model type
+            if self.model_type == "ollama" or "qwen" in self.model_path.lower():
+                # For Qwen models or Ollama, use a generic tokenizer
+                tokenizer = AutoTokenizer.from_pretrained(
+                    "Qwen/Qwen2-7B", 
+                    trust_remote_code=True
+                )
+            else:
+                # Fallback to CodeLlama tokenizer
+                tokenizer = AutoTokenizer.from_pretrained("codellama/CodeLlama-7b-hf")
+            
             total_tokens = 0
             
             for sample in dataset[:len(times)]:
@@ -359,8 +401,12 @@ class ModelEvaluator:
             
             total_time = sum(times)
             return total_tokens / total_time if total_time > 0 else 0.0
-        except:
-            return 0.0
+        except Exception as e:
+            logger.warning(f"Token estimation failed: {e}")
+            # Fallback estimation: ~4 chars per token average
+            total_chars = sum(len(sample.get('target', '')) for sample in dataset[:len(times)])
+            total_time = sum(times)
+            return (total_chars / 4) / total_time if total_time > 0 else 0.0
     
     def compare_models(self, results: List[BenchmarkResult]) -> Dict[str, Any]:
         """Compare multiple model results"""

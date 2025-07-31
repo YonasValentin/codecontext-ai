@@ -1,8 +1,8 @@
 # CodeContext AI - Changelog Generation Model Training Configuration
 
 model:
-  base_model: "codellama/CodeLlama-7b-hf"
-  model_name: "codecontext-changelog-7b"
+  base_model: "Qwen/Qwen3-8B"
+  model_name: "codecontext-changelog-qwen3-8b"
   task_type: "changelog"
   
 # Training hyperparameters
@@ -96,7 +96,7 @@ logging:
   logging_steps: 10
   logging_strategy: "steps"
   report_to: "wandb"
-  run_name: "codecontext-changelog-7b"
+  run_name: "codecontext-changelog-qwen3-8b"
   
   # Weights & Biases
   wandb_project: "codecontext-ai"
@@ -104,14 +104,14 @@ logging:
 
 # Output configuration
 output:
-  output_dir: "./models/codecontext-changelog-7b"
+  output_dir: "./models/codecontext-changelog-qwen3-8b"
   save_steps: 300
   save_strategy: "steps"
   save_total_limit: 3
   
   # Model saving
   push_to_hub: false
-  hub_model_id: "codecontext/codecontext-changelog-7b"
+  hub_model_id: "codecontext/codecontext-changelog-qwen3-8b"
   hub_private_repo: false
 
 # Hardware optimization
