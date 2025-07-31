@@ -32,15 +32,38 @@ class InferenceEngine:
     def _load_model(self):
         """Load model and tokenizer with optimal settings"""
         try:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                self.model_path,
+                trust_remote_code=True  # Required for Qwen3 tokenizer
+            )
+            
+            # Configure tokenizer for Qwen3
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
+            
+            # Set chat template if available (Qwen3 feature)
+            if hasattr(self.tokenizer, 'chat_template') and self.tokenizer.chat_template is None:
+                self.tokenizer.chat_template = self.tokenizer.default_chat_template
                 
+            # Enhanced model loading with Qwen3 support
+            model_kwargs = {
+            "torch_dtype": torch.float16,
+            "device_map": self.device if self.device != "auto" else "auto",
+            "trust_remote_code": True,  # Required for Qwen3 models
+        }
+        
+            # Add quantization for GPU efficiency
+            if torch.cuda.is_available():
+                model_kwargs.update({
+                    "load_in_4bit": True,
+                    "bnb_4bit_compute_dtype": torch.float16,
+                    "bnb_4bit_quant_type": "nf4",
+                    "bnb_4bit_use_double_quant": True
+                })
+            
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_path,
-                torch_dtype=torch.float16,
-                device_map=self.device if self.device != "auto" else "auto",
-                load_in_4bit=True if torch.cuda.is_available() else False
+                **model_kwargs
             )
             
         except Exception as e:

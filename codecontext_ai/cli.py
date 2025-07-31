@@ -6,11 +6,14 @@ CodeContext AI - Command Line Interface
 import sys
 import argparse
 import asyncio
+import os
 from pathlib import Path
 from typing import Optional
 
 from .inference import ArchitecturalGuideAI
 from .evaluation import ModelEvaluator, Benchmarks
+from .rag import RAGEnhancedDocumentationAI, RAGConfig
+from .ollama_integration import OllamaDocumentationAI, OllamaConfig, setup_ollama_for_codecontext
 
 
 def main():
@@ -39,6 +42,10 @@ Examples:
                                 help='Implementation difficulty level')
     generate_parser.add_argument('--framework', default='react', help='Target framework for component guides')
     generate_parser.add_argument('--project-type', default='web', help='Project type for best practices')
+    generate_parser.add_argument('--use-rag', action='store_true', help='Enable RAG for context-aware generation')
+    generate_parser.add_argument('--use-ollama', action='store_true', help='Use Ollama instead of local model files')
+    generate_parser.add_argument('--ollama-model', default='qwen3:8b', help='Ollama model to use')
+    generate_parser.add_argument('--thinking-mode', action='store_true', help='Enable Qwen3 thinking mode')
     
     # Evaluate command
     eval_parser = subparsers.add_parser('evaluate', help='Evaluate model performance')
@@ -88,43 +95,66 @@ Examples:
 
 
 def handle_generate(args) -> int:
-    """Handle documentation generation"""
-    if not args.model:
-        print("Error: --model is required for generation")
-        return 1
+    """Handle documentation generation with enhanced capabilities"""
     
-    model_path = Path(args.model)
-    if not model_path.exists():
-        print(f"Error: Model file not found: {args.model}")
-        return 1
-    
-    print(f"Loading model: {args.model}")
-    ai = ArchitecturalGuideAI(str(model_path))
+    # Handle Ollama generation
+    if args.use_ollama:
+        print(f"Using Ollama with model: {args.ollama_model}")
+        
+        # Setup Ollama if needed
+        if not setup_ollama_for_codecontext(args.ollama_model):
+            print("Error: Failed to setup Ollama")
+            return 1
+        
+        config = OllamaConfig(
+            model_name=args.ollama_model,
+            thinking_mode=args.thinking_mode,
+            context_window=8192
+        )
+        ai = OllamaDocumentationAI(config)
+        
+    # Handle RAG-enhanced generation
+    elif args.use_rag:
+        if not args.model:
+            print("Error: --model is required for RAG generation")
+            return 1
+        
+        model_path = Path(args.model)
+        if not model_path.exists():
+            print(f"Error: Model file not found: {args.model}")
+            return 1
+        
+        print(f"Loading RAG-enhanced model: {args.model}")
+        rag_config = RAGConfig(vector_store_path=f"./rag_store_{args.type}")
+        ai = RAGEnhancedDocumentationAI(str(model_path), rag_config)
+        
+    # Handle traditional generation
+    else:
+        if not args.model:
+            print("Error: --model is required for generation")
+            return 1
+        
+        model_path = Path(args.model)
+        if not model_path.exists():
+            print(f"Error: Model file not found: {args.model}")
+            return 1
+        
+        print(f"Loading model: {args.model}")
+        ai = ArchitecturalGuideAI(str(model_path))
     
     print(f"Generating {args.type} guide for: {args.path}")
     
     try:
-        if args.type == 'readme':
-            result = ai.generate_readme(args.path)
-        elif args.type == 'api':
-            api_info = {"endpoints": [], "models": []}
-            result = ai.generate_api_docs(api_info)
-        elif args.type == 'changelog':
-            changes = []
-            result = ai.generate_changelog(changes)
-        elif args.type == 'architecture':
-            result = ai.generate_architecture_guide(args.path)
-        elif args.type == 'implementation':
-            requirements = {"features": [], "tech_stack": []}
-            result = ai.generate_implementation_guide(requirements, args.difficulty)
-        elif args.type == 'component':
-            component_info = {"type": "functional", "props": []}
-            result = ai.generate_component_guide(component_info, args.framework)
-        elif args.type == 'best-practices':
-            tech_stack = []
-            result = ai.generate_best_practices_guide(tech_stack, args.project_type)
+        # Enhanced generation with different AI backends
+        if args.use_ollama:
+            result = _generate_with_ollama(ai, args)
+        elif args.use_rag:
+            result = _generate_with_rag(ai, args)
         else:
-            print(f"Unsupported guide type: {args.type}")
+            result = _generate_with_traditional(ai, args)
+        
+        if not result:
+            print(f"Error: Failed to generate {args.type} documentation")
             return 1
         
         if args.output:
@@ -142,6 +172,106 @@ def handle_generate(args) -> int:
     except Exception as e:
         print(f"Generation failed: {e}")
         return 1
+
+
+def _generate_with_ollama(ai: OllamaDocumentationAI, args) -> str:
+    """Generate documentation using Ollama"""
+    
+    # Analyze codebase for context
+    context = _analyze_codebase_context(args.path)
+    requirements = f"Difficulty: {getattr(args, 'difficulty', 'medium')}, Framework: {getattr(args, 'framework', 'react')}, Project Type: {getattr(args, 'project_type', 'web')}"
+    
+    return ai.generate_documentation(
+        doc_type=args.type,
+        context=context,
+        requirements=requirements,
+        thinking_mode=getattr(args, 'thinking_mode', False)
+    )
+
+
+def _generate_with_rag(ai: RAGEnhancedDocumentationAI, args) -> str:
+    """Generate documentation using RAG-enhanced AI"""
+    
+    additional_context = f"Difficulty: {getattr(args, 'difficulty', 'medium')}, Framework: {getattr(args, 'framework', 'react')}, Project Type: {getattr(args, 'project_type', 'web')}"
+    
+    return ai.generate_context_aware_documentation(
+        codebase_path=args.path,
+        doc_type=args.type,
+        additional_context=additional_context,
+        use_rag=True
+    )
+
+
+def _generate_with_traditional(ai: ArchitecturalGuideAI, args) -> str:
+    """Generate documentation using traditional method"""
+    
+    if args.type == 'readme':
+        return ai.generate_readme(args.path)
+    elif args.type == 'api':
+        api_info = {"endpoints": [], "models": []}
+        return ai.generate_api_docs(api_info)
+    elif args.type == 'changelog':
+        changes = []
+        return ai.generate_changelog(changes)
+    elif args.type == 'architecture':
+        return ai.generate_architecture_guide(args.path)
+    elif args.type == 'implementation':
+        requirements = {"features": [], "tech_stack": []}
+        return ai.generate_implementation_guide(requirements, getattr(args, 'difficulty', 'medium'))
+    elif args.type == 'component':
+        component_info = {"type": "functional", "props": []}
+        return ai.generate_component_guide(component_info, getattr(args, 'framework', 'react'))
+    elif args.type == 'best-practices':
+        tech_stack = []
+        return ai.generate_best_practices_guide(tech_stack, getattr(args, 'project_type', 'web'))
+    else:
+        raise ValueError(f"Unsupported guide type: {args.type}")
+
+
+def _analyze_codebase_context(codebase_path: str) -> str:
+    """Analyze codebase for context (simplified version)"""
+    
+    analysis = []
+    codebase_path = Path(codebase_path)
+    
+    if not codebase_path.exists():
+        return f"Codebase path does not exist: {codebase_path}"
+    
+    # Check for key configuration files
+    key_files = ["package.json", "pyproject.toml", "Cargo.toml", "go.mod", "requirements.txt", "README.md"]
+    
+    for file in key_files:
+        file_path = codebase_path / file
+        if file_path.exists():
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()[:1000]  # Limit size
+                    analysis.append(f"=== {file} ===\n{content}")
+            except Exception:
+                continue
+    
+    # Basic directory structure
+    try:
+        structure = []
+        for root, dirs, files in os.walk(codebase_path):
+            level = root.replace(str(codebase_path), '').count(os.sep)
+            if level < 3:  # Limit depth
+                indent = '  ' * level
+                folder_name = os.path.basename(root) or codebase_path.name
+                structure.append(f"{indent}{folder_name}/")
+                
+                # Add important files
+                subindent = '  ' * (level + 1)
+                important_files = [f for f in files[:5] if not f.startswith('.')]
+                for file in important_files:
+                    structure.append(f"{subindent}{file}")
+        
+        analysis.append(f"=== PROJECT STRUCTURE ===\n{chr(10).join(structure[:30])}")
+        
+    except Exception:
+        pass
+    
+    return "\n\n".join(analysis) if analysis else "No context available"
 
 
 async def handle_evaluate(args) -> int:
