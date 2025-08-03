@@ -69,7 +69,7 @@ prepare-data:
 # Training
 train:
 	@if [ -z "$(MODEL)" ]; then \
-		echo "Please specify MODEL (readme/api/changelog/architecture/implementation/component/best_practices/all)"; \
+		echo "Please specify MODEL (readme/api/changelog/advisory/architecture/implementation/component/best_practices/all)"; \
 		echo "Example: make train MODEL=readme"; \
 		exit 1; \
 	fi
@@ -79,6 +79,7 @@ train-all:
 	python train.py --config configs/readme.yaml
 	python train.py --config configs/api.yaml  
 	python train.py --config configs/changelog.yaml
+	python train.py --config configs/advisory.yaml
 	python train.py --config configs/architecture.yaml
 	python train.py --config configs/implementation.yaml
 	python train.py --config configs/component.yaml

@@ -1,0 +1,120 @@
+model:
+  base_model: "Qwen/Qwen3-8B"
+  model_name: "codecontext-advisory-qwen3-8b"
+  task_type: "advisory"
+  
+training:
+  num_epochs: 4
+  batch_size: 2
+  gradient_accumulation_steps: 8
+  learning_rate: 1e-4
+  weight_decay: 0.01
+  warmup_steps: 200
+  
+  lora_r: 128
+  lora_alpha: 256
+  lora_dropout: 0.05
+  lora_target_modules:
+    - "q_proj"
+    - "k_proj" 
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  
+  use_4bit: true
+  bnb_4bit_compute_dtype: "float16"
+  bnb_4bit_quant_type: "nf4"
+  use_nested_quant: true
+  
+  optimizer: "adamw_torch"
+  lr_scheduler_type: "cosine"
+  max_grad_norm: 0.5
+  
+  gradient_checkpointing: true
+  dataloader_pin_memory: false
+
+data:
+  train_file: "data/advisory_train.jsonl"
+  eval_file: "data/advisory_eval.jsonl"
+  max_seq_length: 4096
+  truncation: true
+  
+  instruction_template: |
+    ### System:
+    You are a senior software architect providing code analysis guidance.
+    Provide structured recommendations without generating code.
+    Focus on actionable improvements with specific locations and impacts.
+    
+    ### Code Analysis Request:
+    Language: {language}
+    File: {file_name}
+    Analysis Type: {analysis_type}
+    
+    Code Structure:
+    - Functions: {function_count}
+    - Classes: {class_count}  
+    - Complexity: {complexity_level}
+    - Lines: {line_count}
+    
+    ### Code:
+    {code_content}
+    
+    ### Instructions:
+    Analyze the code and provide numbered recommendations in this exact format:
+    
+    1. [Specific issue description with location]
+    → [Actionable improvement step]
+    → [Expected impact and benefit]
+    
+    2. [Next issue description]
+    → [Improvement action]
+    → [Impact description]
+    
+    Focus on: {focus_areas}
+    Prioritize by impact and feasibility.
+    
+    ### Analysis:
+  
+  response_template: |
+    {recommendations}
+
+evaluation:
+  eval_steps: 150
+  eval_strategy: "steps"
+  per_device_eval_batch_size: 1
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  early_stopping_patience: 4
+  early_stopping_threshold: 0.0005
+
+logging:
+  logging_steps: 25
+  report_to: "wandb"
+  run_name: "codecontext-advisory-qwen3-8b"
+  wandb_project: "codecontext-ai"
+
+output:
+  output_dir: "./models/codecontext-advisory-qwen3-8b"
+  save_steps: 300
+  save_strategy: "steps"
+  save_total_limit: 2
+  push_to_hub: false
+
+hardware:
+  bf16: false
+  fp16: true
+  tf32: true
+  dataloader_num_workers: 2
+  max_memory_MB: 32000
+
+seed: 42
+data_seed: 42
+
+advanced:
+  remove_unused_columns: false
+  torch_compile: false
+  use_rslora: true
+  use_dora: false
+  max_steps: -1
