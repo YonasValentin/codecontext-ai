@@ -40,7 +40,7 @@ def analyze(file_path: str, advisory_type: str, model: str, format: str):
     
     if not Path(model).exists():
         console.print(f"[red]Model not found: {model}[/red]")
-        console.print("Run: codecontext-ai download --model advisory")
+        console.print("Train advisory model: make train MODEL=advisory")
         return
     
     console.print(f"[blue]Analyzing {file_path}...[/blue]")

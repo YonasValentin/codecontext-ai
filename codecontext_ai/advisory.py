@@ -1,6 +1,6 @@
 """
 Advisory inference engine for CodeContext AI™ guidance system.
-Provides structured recommendations without code generation.
+Production-ready AI-powered code analysis with structured recommendations.
 """
 
 from dataclasses import dataclass
@@ -43,9 +43,13 @@ class AdvisoryReport:
 
 
 class AdvisoryEngine:
-    """Local AI engine providing guidance without code generation."""
+    """Production AI engine for code analysis and guidance recommendations."""
     
     def __init__(self, model_path: str):
+        """Initialize advisory engine with trained model."""
+        if not Path(model_path).exists():
+            raise FileNotFoundError(f"Model not found: {model_path}")
+        
         self.engine = InferenceEngine(model_path)
         self.templates = self._load_templates()
     
