@@ -11,7 +11,22 @@ Privacy-first AI models for automated code documentation generation. Train and r
 
 ## Installation
 
+### Quick Setup (Recommended)
 ```bash
+# Automated setup with virtual environment
+chmod +x setup_environment.sh
+./setup_environment.sh
+source venv/bin/activate
+```
+
+### Manual Setup
+```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install torch transformers pyyaml
 pip install -r requirements.txt
 pip install -e .
 ```
@@ -19,14 +34,17 @@ pip install -e .
 ## Quick Start
 
 ```bash
-# Generate README documentation
-python -m codecontext_ai.cli generate readme /path/to/project
+# Run advisory analysis demo
+python demo_advisory.py
 
-# Train custom model
-make train MODEL=readme
+# Train advisory model
+make train MODEL=advisory
 
-# Evaluate model performance
-make evaluate MODEL=models/codecontext-readme-7b.gguf
+# Analyze code with advisory system
+python -m codecontext_ai.guidance_cli analyze myfile.py --type refactor
+
+# Scan directory for issues
+python -m codecontext_ai.guidance_cli scan ./src --type security
 ```
 
 ## Architecture
