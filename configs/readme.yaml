@@ -26,4 +26,4 @@ data:
 wandb:
   enabled: true
   project: "codecontext-ai"
-  run_name: "readme-qwen3-model-v2"
+  run_name: "readme-qwen3-model"

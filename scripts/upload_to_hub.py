@@ -59,7 +59,7 @@ def upload_model_to_hub(
         
         # Generate commit message if not provided
         if not commit_message:
-            commit_message = f"Upload CodeContext AI model from {model_path.name}"
+            commit_message = f"Upload CodeContext AI™ model from {model_path.name}"
         
         # Upload the model files
         logger.info("Starting upload...")
@@ -84,7 +84,7 @@ def upload_model_to_hub(
                 repo_type="model"
             )
         
-        logger.info(f"✓ Successfully uploaded to https://huggingface.co/{repo_name}")
+        logger.info(f"Successfully uploaded to https://huggingface.co/{repo_name}")
         
         # Generate model card if it doesn't exist
         model_card_path = model_path / "README.md" if model_path.is_dir() else None
@@ -119,7 +119,7 @@ pipeline_tag: text-generation
 # {model_name}
 
 This is a fine-tuned CodeLlama model specialized for generating high-quality {model_type} documentation. 
-Part of the CodeContext AI project - privacy-first AI models for code documentation.
+Part of the CodeContext AI™ project - privacy-first AI models for code documentation.
 
 ## Model Details
 
@@ -199,8 +199,8 @@ If you use this model in your research or projects, please cite:
 
 ```bibtex
 @misc{{codecontext-{model_type}-7b,
-  title={{CodeContext AI: Privacy-First Documentation Generation}},
-  author={{CodeContext AI Team}},
+  title={{CodeContext AI™: Privacy-First Documentation Generation}},
+  author={{CodeContext AI™ Team}},
   year={{2024}},
   url={{https://github.com/codecontext/codecontext-ai}}
 }}
@@ -215,7 +215,7 @@ If you use this model in your research or projects, please cite:
 
 ---
 
-Built with ❤️ for the developer community. Privacy-first, open-source, and designed to make great documentation accessible to everyone.
+Privacy-first, open-source documentation generation for developers.
 """
     
     try:
@@ -228,7 +228,7 @@ Built with ❤️ for the developer community. Privacy-first, open-source, and d
             commit_message="Add model card with usage instructions",
             repo_type="model"
         )
-        logger.info("✓ Created model card")
+        logger.info("Created model card")
     except Exception as e:
         logger.warning(f"Could not create model card: {e}")
 
@@ -275,11 +275,11 @@ def main():
         )
         
         if success:
-            logger.info("✓ Upload completed successfully!")
+            logger.info("Upload completed successfully")
             logger.info(f"View your model at: https://huggingface.co/{args.repo}")
             return 0
         else:
-            logger.error("✗ Upload failed!")
+            logger.error("Upload failed")
             return 1
             
     except Exception as e:

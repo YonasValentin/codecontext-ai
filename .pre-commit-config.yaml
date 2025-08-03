@@ -1,4 +1,4 @@
-# Pre-commit hooks for CodeContext AI
+# Pre-commit hooks for CodeContext AI™
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0

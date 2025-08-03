@@ -66,7 +66,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import codecontext_ai; print('OK')" || exit 1
 
 # Labels for metadata
-LABEL maintainer="CodeContext AI Team"
+LABEL maintainer="CodeContext AI™ Team"
 LABEL version="1.0.0"
 LABEL description="Privacy-first AI models for code documentation"
 LABEL gpu.required="true"

@@ -1,13 +1,9 @@
-# CodeContext AI - API Documentation Model Training Configuration
-
 model:
   base_model: "Qwen/Qwen3-8B"
   model_name: "codecontext-api-qwen3-8b"
   task_type: "api"
   
-# Training hyperparameters
 training:
-  # Core parameters
   num_epochs: 4
   batch_size: 4
   gradient_accumulation_steps: 4
@@ -15,7 +11,6 @@ training:
   weight_decay: 0.01
   warmup_steps: 150
   
-  # LoRA configuration
   lora_r: 64
   lora_alpha: 128
   lora_dropout: 0.1
@@ -28,33 +23,26 @@ training:
     - "up_proj"
     - "down_proj"
   
-  # Quantization (QLoRA)
   use_4bit: true
   bnb_4bit_compute_dtype: "float16"
   bnb_4bit_quant_type: "nf4"
   use_nested_quant: true
   
-  # Optimization
   optimizer: "adamw_torch"
   lr_scheduler_type: "cosine"
   max_grad_norm: 1.0
   
-  # Memory management
   gradient_checkpointing: true
   dataloader_pin_memory: false
   remove_unused_columns: false
 
-# Data configuration
 data:
   train_file: "data/api_train.jsonl"
   eval_file: "data/api_eval.jsonl"
   max_seq_length: 2048
-  
-  # Data preprocessing
   truncation: true
   padding: false
   
-  # Special tokens
   instruction_template: |
     ### Instruction:
     Generate comprehensive API documentation for the following code:
@@ -81,7 +69,6 @@ data:
   response_template: |
     {api_documentation}
 
-# Evaluation configuration
 evaluation:
   eval_steps: 100
   eval_strategy: "steps"
@@ -89,52 +76,36 @@ evaluation:
   evaluation_strategy: "steps"
   load_best_model_at_end: true
   metric_for_best_model: "eval_loss"
-  
-  # Early stopping
   early_stopping_patience: 3
   early_stopping_threshold: 0.001
 
-# Logging and monitoring
 logging:
   logging_steps: 10
   logging_strategy: "steps"
   report_to: "wandb"
   run_name: "codecontext-api-qwen3-8b"
-  
-  # Weights & Biases
   wandb_project: "codecontext-ai"
   wandb_entity: null
 
-# Output configuration  
 output:
   output_dir: "./models/codecontext-api-qwen3-8b"
   save_steps: 250
   save_strategy: "steps"
   save_total_limit: 3
-  
-  # Model saving
   push_to_hub: false
   hub_model_id: "codecontext/codecontext-api-qwen3-8b"
   hub_private_repo: false
 
-# Hardware optimization
 hardware:
-  # GPU settings
   bf16: false
   fp16: true
   tf32: true
-  
-  # CPU settings
   dataloader_num_workers: 4
-  
-  # Memory optimization
   max_memory_MB: 24000
 
-# Reproducibility
 seed: 42
 data_seed: 42
 
-# Advanced settings
 advanced:
   remove_unused_columns: false
   label_names: ["labels"]
